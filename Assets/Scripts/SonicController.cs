@@ -17,10 +17,12 @@ public class SonicController : MonoBehaviour
     float lastLockTime = 0f;
     float currentSpeed = 0f;
     public float gravityForce = 0.21875f;
+    public float jumpLimit = 4f;
     private float currDownVelocity = 0f;
     bool inLoop = false;
     bool isGrounded = false;
     bool wasGroundedLastFrame = false;
+    bool isJumping = false;
     float lastJumpTime = 0f;
     Vector3 movementVector = Vector3.zero;
     Rigidbody rb;
@@ -43,16 +45,23 @@ public class SonicController : MonoBehaviour
                 Jump();
             }
         }
+        if(Input.GetButtonUp("Jump") && isJumping)
+        {
+            if (movementVector.y > jumpLimit)
+            {
+                movementVector.y = jumpLimit;
+            }
+        }
     }
 
     private void FixedUpdate() {
         if (Time.time - lastJumpTime > jumpTime)
         {
-            RotationHandler();
             if (isGrounded || movementVector.y <= 0)
             {
                 isGrounded = CheckGrounded();
             }
+            RotationHandler();
         }
         SlipCheck();
         GravityHandler();
@@ -77,6 +86,7 @@ public class SonicController : MonoBehaviour
     private void Jump()
     {
         LeaveGround(jumpSpeed);
+        isJumping = true;
     }
 
     public void LeaveGround(float jumpPower)
@@ -93,6 +103,7 @@ public class SonicController : MonoBehaviour
     
     public void TouchGround()
     {
+        isJumping = false;
         Vector3 rotatedMoveVector = transform.InverseTransformDirection(movementVector);
         currentSpeed = rotatedMoveVector.x;
     }
@@ -103,7 +114,7 @@ public class SonicController : MonoBehaviour
         {
             movementVector = transform.right * currentSpeed;
         }
-        else
+        else // In the air here:
         {
             movementVector += Vector3.up * currDownVelocity + Vector3.right * (currentSpeed / airDamper);
         }
