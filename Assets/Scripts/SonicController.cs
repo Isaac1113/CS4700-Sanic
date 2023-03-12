@@ -12,6 +12,9 @@ public class SonicController : MonoBehaviour
     public float jumpSpeed = 2f;
     // The minimum amount of time that isGrounded is kept false after a jump
     public float jumpTime;
+    public float slipSpeedThreshold = 3f;
+    public float controlLockTimer = 0.5f;
+    float lastLockTime = 0f;
     float currentSpeed = 0f;
     public float gravityForce = 0.21875f;
     private float currDownVelocity = 0f;
@@ -51,6 +54,7 @@ public class SonicController : MonoBehaviour
                 isGrounded = CheckGrounded();
             }
         }
+        SlipCheck();
         GravityHandler();
         HorizontalMovement();
         setVelocity();
@@ -72,18 +76,19 @@ public class SonicController : MonoBehaviour
 
     private void Jump()
     {
-        isGrounded = false;
-        wasGroundedLastFrame = false;
         LeaveGround(jumpSpeed);
-        lastJumpTime = Time.time;
     }
 
     public void LeaveGround(float jumpPower)
     {
+        isGrounded = false;
+        wasGroundedLastFrame = false;
+        lastJumpTime = Time.time;
         movementVector = currentSpeed * transform.right;
         movementVector += transform.up * jumpPower;
         transform.rotation = Quaternion.identity;
         currentSpeed = 0;
+        Debug.Log(movementVector);
     }
     
     public void TouchGround()
@@ -105,6 +110,33 @@ public class SonicController : MonoBehaviour
         rb.velocity = movementVector;
     }
 
+    private void SlipCheck()
+    {
+        if (!isGrounded)
+        {
+            return;
+        }
+
+        float sanicRotation = transform.rotation.eulerAngles.z;
+
+        if (sanicRotation >= 45 && sanicRotation <= 315 && Mathf.Abs(currentSpeed) < slipSpeedThreshold)
+        {
+            Slip();
+        }
+    }
+
+    private void OnGUI()
+    {
+        GUI.Label(new Rect(10, 10, 100, 20), transform.rotation.eulerAngles.z.ToString());
+    }
+
+    private void Slip()
+    {
+        Debug.Log("Entered Slip");
+        lastLockTime = Time.time;
+        LeaveGround(0);
+    }
+
     bool CheckGrounded()
     {
         float sizeY = col.height;
@@ -118,6 +150,7 @@ public class SonicController : MonoBehaviour
         }
         if(wasGroundedLastFrame && !castNormal)
         {
+            Debug.Log("Above LeaveGround in CheckGrounded");
             LeaveGround(0);
         }
         else if (!wasGroundedLastFrame && castNormal)
@@ -145,6 +178,10 @@ public class SonicController : MonoBehaviour
     {
         float hAxis = Input.GetAxis("Horizontal");
 
+        if (Time.time - lastLockTime < controlLockTimer)
+        {
+            hAxis = 0;
+        }
         if (hAxis < 0)
         {
             if (currentSpeed > 0) // Moving to the right
