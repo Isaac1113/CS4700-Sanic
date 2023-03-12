@@ -46,7 +46,10 @@ public class SonicController : MonoBehaviour
         if (Time.time - lastJumpTime > jumpTime)
         {
             RotationHandler();
-            isGrounded = CheckGrounded();
+            if (isGrounded || movementVector.y <= 0)
+            {
+                isGrounded = CheckGrounded();
+            }
         }
         GravityHandler();
         HorizontalMovement();
