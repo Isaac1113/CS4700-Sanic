@@ -23,21 +23,33 @@ public class SonicController : MonoBehaviour
     bool isGrounded = false;
     bool wasGroundedLastFrame = false;
     bool isJumping = false;
+    bool isBall = false;
     float lastJumpTime = 0f;
     Vector3 movementVector = Vector3.zero;
     Rigidbody rb;
-    CapsuleCollider col;
+    SphereCollider col;
+    [SerializeField] GameObject sanicGraphics;
+    [SerializeField] GameObject ballGraphics;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        col = GetComponent<CapsuleCollider>();
+        col = GetComponent<SphereCollider>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetAxis("Vertical") < 0 && !isBall)
+        {
+            TurnToBall();
+        }
+        if (Input.GetAxis("Vertical") > 0 && isBall)
+        {
+            TurnToSanic();
+        }
+        
         if(Input.GetButtonDown("Jump"))
         {
             if (isGrounded)
@@ -71,7 +83,7 @@ public class SonicController : MonoBehaviour
 
     private void RotationHandler()
     {
-        float sizeY = col.height;
+        float sizeY = col.radius * 2;
         Vector3 bottomPoint = transform.position + new Vector3(0f, -sizeY / 2 + 0.05f, 0f);
         Vector3 feetPoint = transform.position + transform.up * (-sizeY/2 + 0.05f);
 
@@ -121,6 +133,20 @@ public class SonicController : MonoBehaviour
         rb.velocity = movementVector;
     }
 
+    private void TurnToBall()
+    {
+        isBall = true;
+        sanicGraphics.SetActive(false);
+        ballGraphics.SetActive(true);
+    }
+
+    private void TurnToSanic()
+    {
+        isBall = false;
+        sanicGraphics.SetActive(true);
+        ballGraphics.SetActive(false);
+    }
+
     private void SlipCheck()
     {
         if (!isGrounded)
@@ -150,7 +176,7 @@ public class SonicController : MonoBehaviour
 
     bool CheckGrounded()
     {
-        float sizeY = col.height;
+        float sizeY = col.radius * 2;
         Vector3 feetPoint = transform.position + transform.up * (-sizeY/2 + 0.15f);
 
         RaycastHit hit;
