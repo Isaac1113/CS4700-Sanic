@@ -4,15 +4,17 @@ using UnityEngine;
 
 public class LoopController : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    [SerializeField] private MeshCollider entryLoop;
+    [SerializeField] private MeshCollider exitLoop;
+    
+    [SerializeField] private Transform loopDisablerPos;
+    [SerializeField] private Transform SpotToMoveDisabler;
 
-    // Update is called once per frame
-    void Update()
+    private void OnTriggerEnter(Collider other)
     {
-        
+        entryLoop.enabled = false;
+        exitLoop.enabled = true;
+
+        loopDisablerPos.position = SpotToMoveDisabler.position;
     }
 }

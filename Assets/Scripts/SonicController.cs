@@ -110,7 +110,7 @@ public class SonicController : MonoBehaviour
         movementVector += transform.up * jumpPower;
         transform.rotation = Quaternion.identity;
         currentSpeed = 0;
-        Debug.Log(movementVector);
+        // Debug.Log(movementVector);
     }
     
     public void TouchGround()
