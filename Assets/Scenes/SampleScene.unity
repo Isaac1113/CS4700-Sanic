@@ -7991,7 +7991,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-131180
+  m_Name: pb_Mesh-1232
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -11754,6 +11754,22 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 1441516819}
+    - target: {fileID: 8829319938659364843, guid: ea648ab94b0450442823ebd239797093, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8829319938659364847, guid: ea648ab94b0450442823ebd239797093, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8829319938731472210, guid: ea648ab94b0450442823ebd239797093, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8829319938882044201, guid: ea648ab94b0450442823ebd239797093, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8829319938960454080, guid: ea648ab94b0450442823ebd239797093, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -11816,6 +11832,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8829319938962896725, guid: ea648ab94b0450442823ebd239797093, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8829319939018000794, guid: ea648ab94b0450442823ebd239797093, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

@@ -128,7 +128,29 @@ public class SonicController : MonoBehaviour
         }
         else // In the air here:
         {
-            movementVector += Vector3.up * currDownVelocity + Vector3.right * (currentSpeed / airDamper);
+            movementVector += Vector3.up * currDownVelocity;
+            if(movementVector.x < 0)
+            {
+                if(currentSpeed > 0)
+                {
+                    movementVector += Vector3.right * (currentSpeed / airDamper);
+                }
+                else
+                {
+                    movementVector += Mathf.Abs(movementVector.x) < topSpeed ? Vector3.right * (currentSpeed / airDamper) : Vector3.zero;
+                }
+            }
+            else if(movementVector.x > 0)
+            {
+                if(currentSpeed < 0)
+                {
+                    movementVector += Vector3.right * (currentSpeed / airDamper);
+                }
+                else
+                {
+                    movementVector += Mathf.Abs(movementVector.x) < topSpeed ? Vector3.right * (currentSpeed / airDamper) : Vector3.zero;
+                }
+            }
         }
         rb.velocity = movementVector;
     }
@@ -165,6 +187,7 @@ public class SonicController : MonoBehaviour
     private void OnGUI()
     {
         GUI.Label(new Rect(10, 10, 100, 20), transform.rotation.eulerAngles.z.ToString());
+        GUI.Label(new Rect(10, 30, 100, 20), rb.velocity.x.ToString());
     }
 
     private void Slip()
