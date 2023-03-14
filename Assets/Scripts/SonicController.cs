@@ -97,6 +97,7 @@ public class SonicController : MonoBehaviour
 
     private void Jump()
     {
+        TurnToBall();
         LeaveGround(jumpSpeed);
         isJumping = true;
     }
@@ -115,6 +116,8 @@ public class SonicController : MonoBehaviour
     
     public void TouchGround()
     {
+        Debug.Log("TurnSanic in TouchGround");
+        TurnToSanic();
         isJumping = false;
         Vector3 rotatedMoveVector = transform.InverseTransformDirection(movementVector);
         currentSpeed = rotatedMoveVector.x;
@@ -152,11 +155,18 @@ public class SonicController : MonoBehaviour
                 }
             }
         }
+        if (Mathf.Abs(movementVector.x) > 0f && Mathf.Abs(movementVector.x) < 0.5f && isBall)
+        {
+            Debug.Log(movementVector.x);
+            Debug.Log("TurnSanic in SetVelocity");
+            TurnToSanic();
+        }
         rb.velocity = movementVector;
     }
 
     private void TurnToBall()
     {
+
         isBall = true;
         sanicGraphics.SetActive(false);
         ballGraphics.SetActive(true);
@@ -180,6 +190,10 @@ public class SonicController : MonoBehaviour
 
         if (sanicRotation >= 45 && sanicRotation <= 315 && Mathf.Abs(currentSpeed) < slipSpeedThreshold)
         {
+            if(isBall)
+            {
+                TurnToSanic();
+            }
             Slip();
         }
     }
@@ -210,7 +224,7 @@ public class SonicController : MonoBehaviour
         }
         if(wasGroundedLastFrame && !castNormal)
         {
-            Debug.Log("Above LeaveGround in CheckGrounded");
+            // Debug.Log("Above LeaveGround in CheckGrounded");
             LeaveGround(0);
         }
         else if (!wasGroundedLastFrame && castNormal)
@@ -242,10 +256,11 @@ public class SonicController : MonoBehaviour
         {
             hAxis = 0;
         }
-        if (hAxis < 0)
+        if (hAxis < 0) // Inputting to the left
         {
             if (currentSpeed > 0) // Moving to the right
             {
+                TurnToSanic();
                 currentSpeed -= deceleration;
                 if (currentSpeed <= 0)
                 {
@@ -254,7 +269,10 @@ public class SonicController : MonoBehaviour
             }
             else if (currentSpeed > -topSpeed) // if moving to the left
             {
-                currentSpeed -= acceleration;
+                if(!isBall)
+                {
+                    currentSpeed -= acceleration;
+                }
                 if (currentSpeed <= -topSpeed)
                 {
                     currentSpeed = -topSpeed; // Impose top speed limit
@@ -262,10 +280,11 @@ public class SonicController : MonoBehaviour
             }
         }
 
-        if (hAxis > 0)
+        if (hAxis > 0) // Inputting to the right
         {
             if (currentSpeed < 0) // If moving to the left
             {
+                TurnToSanic();
                 currentSpeed += deceleration;
                 if (currentSpeed >= 0)
                 {
@@ -274,7 +293,10 @@ public class SonicController : MonoBehaviour
             }
             else if (currentSpeed < topSpeed) // if moving to the right
             {
-                currentSpeed += acceleration;
+                if(!isBall)
+                {
+                    currentSpeed += acceleration;
+                }
                 if (currentSpeed >= topSpeed)
                 {
                     currentSpeed = topSpeed; // Impose top speed limit
@@ -282,7 +304,7 @@ public class SonicController : MonoBehaviour
             }
         }
 
-        if (hAxis == 0)
+        if (hAxis == 0 || isBall)
         {
             currentSpeed -= Mathf.Min(Mathf.Abs(currentSpeed), frictionSpeed) * Mathf.Sign(currentSpeed); // decelerate with friction
         }

@@ -11708,7 +11708,7 @@ MonoBehaviour:
   acceleration: 0.26
   deceleration: 0.5
   frictionSpeed: 0.046875
-  topSpeed: 13.11
+  topSpeed: 15
   airDamper: 15
   jumpSpeed: 15
   jumpTime: 0.1
@@ -11725,7 +11725,7 @@ SphereCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2116960595}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 72ffb5d423c7645408a353dbff278c0d, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
