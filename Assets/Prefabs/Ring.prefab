@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 7527770630463846451}
   - component: {fileID: 7527770630463846448}
   - component: {fileID: 7527770630463846449}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Ring
   m_TagString: Coin
   m_Icon: {fileID: 0}

@@ -26,6 +26,8 @@ public class SonicController : MonoBehaviour
     bool isSanic = true;
     float lastJumpTime = 0f;
     public HudManager hud;
+    public float damageTimer = 1.5f;
+    public float lastDamageTime = 0f;
     Vector3 movementVector = Vector3.zero;
     Rigidbody rb;
     SphereCollider col;
@@ -94,11 +96,38 @@ public class SonicController : MonoBehaviour
             // Refresh the HUD
             hud.Refresh();
 
-            // Play coin collection sound
-            // coinAudioSource.Play();
-
             // Destroy the coin
             Destroy(other.gameObject);
+        }
+        else if(other.gameObject.tag == "Spike")
+        {
+            if (Time.time - lastDamageTime > damageTimer)
+            {
+                lastDamageTime = Time.time;
+                int currentRings = GameManager.instance.rings;
+                Debug.Log(currentRings);
+                if(currentRings == 0)
+                {
+                    // Game Over here
+                    Debug.Log("Game Over on Enter");
+                }
+                else
+                {
+                    GameManager.instance.LoseAllRings();
+                    hud.Refresh();
+                }
+            }
+        }
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (Time.time - lastDamageTime > damageTimer)
+        {
+            if(other.gameObject.tag == "Spike")
+            {
+                Debug.Log("Game Over on Stay");
+            }
         }
     }
 

@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Loop
   - Coin
+  - Spike
   layers:
   - Default
   - TransparentFX

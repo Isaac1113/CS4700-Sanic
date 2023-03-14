@@ -11,6 +11,6 @@ public class HudManager : MonoBehaviour
     // Show player stats in the HUD
     public void Refresh()
     {
-        scoreLabel.text = "Rings: " + GameManager.instance.score;
+        scoreLabel.text = "Rings: " + GameManager.instance.rings;
     }
 }

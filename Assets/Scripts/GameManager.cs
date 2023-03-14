@@ -10,7 +10,7 @@ public class GameManager : MonoBehaviour
     public static GameManager instance = null;
 
     // Player Score
-    public int score = 0;
+    public int rings = 0;
     // High Score
     public int highScore = 0;
     // Level, starting in Level 1
@@ -42,7 +42,7 @@ public class GameManager : MonoBehaviour
     public void Reset()
     {
         // Reset the score
-        score = 0;
+        rings = 0;
 
         // Set the current level to 1
         currentLevel = 1;
@@ -68,11 +68,17 @@ public class GameManager : MonoBehaviour
     // Increase Score
     public void IncreaseScore(int amount)
     {
-        score += amount;
+        rings += amount;
 
-        if (score > highScore)
+        if (rings > highScore)
         {
-            highScore = score;
+            highScore = rings;
         }
-    } 
+    }
+
+    // Lose all Rings when Sonic takes damage
+    public void LoseAllRings()
+    {
+        rings = 0;
+    }
 }
