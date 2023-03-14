@@ -155,9 +155,8 @@ public class SonicController : MonoBehaviour
                 }
             }
         }
-        if (Mathf.Abs(movementVector.x) > 0f && Mathf.Abs(movementVector.x) < 0.5f && isBall)
+        if (Mathf.Abs(currentSpeed) > 0f && Mathf.Abs(currentSpeed) < 0.5f && isBall && isGrounded)
         {
-            Debug.Log(movementVector.x);
             Debug.Log("TurnSanic in SetVelocity");
             TurnToSanic();
         }
@@ -200,8 +199,9 @@ public class SonicController : MonoBehaviour
 
     private void OnGUI()
     {
-        GUI.Label(new Rect(10, 10, 100, 20), transform.rotation.eulerAngles.z.ToString());
-        GUI.Label(new Rect(10, 30, 100, 20), rb.velocity.x.ToString());
+        GUI.Label(new Rect(10, 10, 100, 20), "tran.rot.eulerAngles.z" + transform.rotation.eulerAngles.z.ToString());
+        GUI.Label(new Rect(10, 30, 100, 20), "rb.vel.x" + rb.velocity.x.ToString());
+        GUI.Label(new Rect(10, 50, 100, 20), "currSpeed" + currentSpeed.ToString());
     }
 
     private void Slip()
@@ -260,7 +260,10 @@ public class SonicController : MonoBehaviour
         {
             if (currentSpeed > 0) // Moving to the right
             {
-                TurnToSanic();
+                if (isGrounded)
+                {
+                    TurnToSanic();
+                }
                 currentSpeed -= deceleration;
                 if (currentSpeed <= 0)
                 {
@@ -269,7 +272,7 @@ public class SonicController : MonoBehaviour
             }
             else if (currentSpeed > -topSpeed) // if moving to the left
             {
-                if(!isBall)
+                if(!isBall || (isBall && !isGrounded))
                 {
                     currentSpeed -= acceleration;
                 }
@@ -284,7 +287,10 @@ public class SonicController : MonoBehaviour
         {
             if (currentSpeed < 0) // If moving to the left
             {
-                TurnToSanic();
+                if (isGrounded)
+                {
+                    TurnToSanic();
+                }
                 currentSpeed += deceleration;
                 if (currentSpeed >= 0)
                 {
@@ -293,7 +299,7 @@ public class SonicController : MonoBehaviour
             }
             else if (currentSpeed < topSpeed) // if moving to the right
             {
-                if(!isBall)
+                if(!isBall || (isBall && !isGrounded))
                 {
                     currentSpeed += acceleration;
                 }
