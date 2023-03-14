@@ -25,6 +25,7 @@ public class SonicController : MonoBehaviour
     bool isBall = false;
     bool isSanic = true;
     float lastJumpTime = 0f;
+    public HudManager hud;
     Vector3 movementVector = Vector3.zero;
     Rigidbody rb;
     SphereCollider col;
@@ -36,6 +37,8 @@ public class SonicController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         col = GetComponent<SphereCollider>();
+
+        hud.Refresh();
     }
 
     // Update is called once per frame
@@ -79,6 +82,24 @@ public class SonicController : MonoBehaviour
         GravityHandler();
         HorizontalMovement();
         setVelocity();
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.gameObject.tag == "Coin")
+        {
+            // Increase Score
+            GameManager.instance.IncreaseScore(1);
+
+            // Refresh the HUD
+            hud.Refresh();
+
+            // Play coin collection sound
+            // coinAudioSource.Play();
+
+            // Destroy the coin
+            Destroy(other.gameObject);
+        }
     }
 
     private void RotationHandler()
@@ -280,7 +301,7 @@ public class SonicController : MonoBehaviour
             }
             else if (currentSpeed > -topSpeed) // if moving to the left
             {
-                if(!isBall || (isBall && !isGrounded))
+                if(!(isBall && isGrounded))
                 {
                     currentSpeed -= acceleration;
                 }
@@ -307,7 +328,7 @@ public class SonicController : MonoBehaviour
             }
             else if (currentSpeed < topSpeed) // if moving to the right
             {
-                if(!isBall || (isBall && !isGrounded))
+                if(!(isBall && isGrounded))
                 {
                     currentSpeed += acceleration;
                 }
@@ -318,7 +339,7 @@ public class SonicController : MonoBehaviour
             }
         }
 
-        if (hAxis == 0 || isBall)
+        if (hAxis == 0 || (isBall && isGrounded))
         {
             currentSpeed -= Mathf.Min(Mathf.Abs(currentSpeed), frictionSpeed) * Mathf.Sign(currentSpeed); // decelerate with friction
         }
