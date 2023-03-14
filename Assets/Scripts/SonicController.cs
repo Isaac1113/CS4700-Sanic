@@ -19,11 +19,11 @@ public class SonicController : MonoBehaviour
     public float gravityForce = 0.21875f;
     public float jumpLimit = 4f;
     private float currDownVelocity = 0f;
-    bool inLoop = false;
     bool isGrounded = false;
     bool wasGroundedLastFrame = false;
     bool isJumping = false;
     bool isBall = false;
+    bool isSanic = true;
     float lastJumpTime = 0f;
     Vector3 movementVector = Vector3.zero;
     Rigidbody rb;
@@ -97,7 +97,10 @@ public class SonicController : MonoBehaviour
 
     private void Jump()
     {
-        TurnToBall();
+        if(isSanic)
+        {
+            TurnToBall();
+        }
         LeaveGround(jumpSpeed);
         isJumping = true;
     }
@@ -116,8 +119,10 @@ public class SonicController : MonoBehaviour
     
     public void TouchGround()
     {
-        Debug.Log("TurnSanic in TouchGround");
-        TurnToSanic();
+        if (isJumping)
+        {
+            TurnToSanic();
+        }
         isJumping = false;
         Vector3 rotatedMoveVector = transform.InverseTransformDirection(movementVector);
         currentSpeed = rotatedMoveVector.x;
@@ -157,7 +162,6 @@ public class SonicController : MonoBehaviour
         }
         if (Mathf.Abs(currentSpeed) > 0f && Mathf.Abs(currentSpeed) < 0.5f && isBall && isGrounded)
         {
-            Debug.Log("TurnSanic in SetVelocity");
             TurnToSanic();
         }
         rb.velocity = movementVector;
@@ -165,15 +169,20 @@ public class SonicController : MonoBehaviour
 
     private void TurnToBall()
     {
-
+        frictionSpeed = frictionSpeed / 2;
+        topSpeed = topSpeed * 2;
         isBall = true;
+        isSanic = false;
         sanicGraphics.SetActive(false);
         ballGraphics.SetActive(true);
     }
 
     private void TurnToSanic()
     {
+        frictionSpeed = frictionSpeed * 2;
+        topSpeed = topSpeed / 2;
         isBall = false;
+        isSanic = true;
         sanicGraphics.SetActive(true);
         ballGraphics.SetActive(false);
     }
@@ -224,7 +233,6 @@ public class SonicController : MonoBehaviour
         }
         if(wasGroundedLastFrame && !castNormal)
         {
-            // Debug.Log("Above LeaveGround in CheckGrounded");
             LeaveGround(0);
         }
         else if (!wasGroundedLastFrame && castNormal)
@@ -260,7 +268,7 @@ public class SonicController : MonoBehaviour
         {
             if (currentSpeed > 0) // Moving to the right
             {
-                if (isGrounded)
+                if (isGrounded && isBall)
                 {
                     TurnToSanic();
                 }
@@ -287,7 +295,7 @@ public class SonicController : MonoBehaviour
         {
             if (currentSpeed < 0) // If moving to the left
             {
-                if (isGrounded)
+                if (isGrounded && isBall)
                 {
                     TurnToSanic();
                 }
