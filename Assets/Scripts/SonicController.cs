@@ -28,11 +28,13 @@ public class SonicController : MonoBehaviour
     public HudManager hud;
     public float damageTimer = 1.5f;
     public float lastDamageTime = 0f;
+    public float spikeForce = 10f;
     Vector3 movementVector = Vector3.zero;
     Rigidbody rb;
     SphereCollider col;
     [SerializeField] GameObject sanicGraphics;
     [SerializeField] GameObject ballGraphics;
+    [SerializeField] Animator ballAnimator;
 
     // Start is called before the first frame update
     void Start()
@@ -46,7 +48,7 @@ public class SonicController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetAxis("Vertical") < 0 && !isBall)
+        if (Input.GetAxis("Vertical") < 0 && !isBall && Mathf.Abs(currentSpeed) >= 0.5f)
         {
             TurnToBall();
         }
@@ -99,20 +101,33 @@ public class SonicController : MonoBehaviour
             // Destroy the coin
             Destroy(other.gameObject);
         }
-        else if(other.gameObject.tag == "Spike")
+        else if(other.gameObject.tag == "LeftSpike" || other.gameObject.tag == "RightSpike")
         {
             if (Time.time - lastDamageTime > damageTimer)
             {
                 lastDamageTime = Time.time;
                 int currentRings = GameManager.instance.rings;
                 Debug.Log(currentRings);
+                LeaveGround(0);
                 if(currentRings == 0)
                 {
                     // Game Over here
+                    currentSpeed = 0;
+                    movementVector = Vector3.up * spikeForce;
                     Debug.Log("Game Over on Enter");
                 }
                 else
                 {
+                    currentSpeed = 0;
+                    movementVector = Vector3.zero;
+                    if (other.gameObject.tag == "LeftSpike")
+                    {
+                        movementVector = new Vector3(-1, 1, 0) * spikeForce;
+                    }
+                    else
+                    {
+                        movementVector = new Vector3(1, 1, 0) * spikeForce;
+                    }
                     GameManager.instance.LoseAllRings();
                     hud.Refresh();
                 }
@@ -150,6 +165,8 @@ public class SonicController : MonoBehaviour
         if(isSanic)
         {
             TurnToBall();
+            ballAnimator.speed = 1;
+            ballAnimator.SetTrigger("Jump");
         }
         LeaveGround(jumpSpeed);
         isJumping = true;
@@ -164,6 +181,7 @@ public class SonicController : MonoBehaviour
         movementVector += transform.up * jumpPower;
         transform.rotation = Quaternion.identity;
         currentSpeed = 0;
+        ballAnimator.SetBool("IsGrounded", false);
         // Debug.Log(movementVector);
     }
     
@@ -176,6 +194,7 @@ public class SonicController : MonoBehaviour
         isJumping = false;
         Vector3 rotatedMoveVector = transform.InverseTransformDirection(movementVector);
         currentSpeed = rotatedMoveVector.x;
+        ballAnimator.SetBool("IsGrounded", true);
     }
 
     private void setVelocity() 
@@ -183,6 +202,8 @@ public class SonicController : MonoBehaviour
         if(isGrounded)
         {
             movementVector = transform.right * currentSpeed;
+            ballAnimator.speed = Mathf.Abs(currentSpeed);
+            ballAnimator.SetFloat("Speed", currentSpeed);
         }
         else // In the air here:
         {
@@ -209,6 +230,11 @@ public class SonicController : MonoBehaviour
                     movementVector += Mathf.Abs(movementVector.x) < topSpeed ? Vector3.right * (currentSpeed / airDamper) : Vector3.zero;
                 }
             }
+            else
+            {
+                movementVector += Vector3.right * (currentSpeed / airDamper);
+            }
+            
         }
         if (Mathf.Abs(currentSpeed) > 0f && Mathf.Abs(currentSpeed) < 0.5f && isBall && isGrounded)
         {
@@ -223,8 +249,8 @@ public class SonicController : MonoBehaviour
         topSpeed = topSpeed * 2;
         isBall = true;
         isSanic = false;
-        sanicGraphics.SetActive(false);
-        ballGraphics.SetActive(true);
+        sanicGraphics.GetComponent<MeshRenderer>().enabled = false;
+        ballGraphics.GetComponent<MeshRenderer>().enabled = true;
     }
 
     private void TurnToSanic()
@@ -233,8 +259,8 @@ public class SonicController : MonoBehaviour
         topSpeed = topSpeed / 2;
         isBall = false;
         isSanic = true;
-        sanicGraphics.SetActive(true);
-        ballGraphics.SetActive(false);
+        sanicGraphics.GetComponent<MeshRenderer>().enabled = true;
+        ballGraphics.GetComponent<MeshRenderer>().enabled = false;
     }
 
     private void SlipCheck()
