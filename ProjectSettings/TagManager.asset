@@ -11,6 +11,8 @@ TagManager:
   - Spike
   - UpSpring
   - HorizontalSpring
+  - Sanic
+  - Goal
   layers:
   - Default
   - TransparentFX

@@ -14,25 +14,31 @@ public class SwapLoopController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Rigidbody otherRb = other.GetComponent<Rigidbody>();
-
-        if(Mathf.Abs(otherRb.velocity.x) > 10f)
+        if(other.gameObject.tag == "Sanic")
         {
-            loop = rightLoop.enabled ? true : false;
-            leftLoop.enabled = true;
-            rightLoop.enabled = true;
+            Rigidbody otherRb = other.GetComponent<Rigidbody>();
+
+            if(Mathf.Abs(otherRb.velocity.x) > 10f)
+            {
+                loop = rightLoop.enabled ? true : false;
+                leftLoop.enabled = true;
+                rightLoop.enabled = true;
+            }
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if(loop)
+        if(other.gameObject.tag == "Sanic")
         {
-            rightLoop.enabled = false;
-        }
-        else
-        {
-            leftLoop.enabled = false;
+            if(loop)
+            {
+                rightLoop.enabled = false;
+            }
+            else
+            {
+                leftLoop.enabled = false;
+            }
         }
     }
 }

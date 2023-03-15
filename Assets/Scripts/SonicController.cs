@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SonicController : MonoBehaviour
 {
@@ -129,14 +130,8 @@ public class SonicController : MonoBehaviour
                 LeaveGround(0);
                 if(currentRings == 0)
                 {
-                    // Game Over here
-                    sanicDead = true;
-                    currentSpeed = 0;
-                    movementVector = Vector3.zero;
-                    movementVector = Vector3.up * spikeForce;
-                    GetComponent<SphereCollider>().enabled = false;
-                    Camera.main.GetComponent<CameraController>().isDead = true;
-                    Debug.Log("Game Over on Enter");
+                    // Sanic Death Here :(
+                    StartCoroutine(DeathCoRoutine());
                 }
                 else
                 {
@@ -176,25 +171,69 @@ public class SonicController : MonoBehaviour
             float dir = other.gameObject.transform.TransformDirection(transform.up).x;
             currentSpeed = dir * springForce;
         }
+        else if (other.gameObject.tag == "Goal")
+        {
+            // Go to Home Menu
+            SceneManager.LoadScene("HomeMenu");
+        }
+
+
+    }
+
+    IEnumerator DeathCoRoutine()
+    {
+        // Game Over here
+        sanicDead = true;
+        currentSpeed = 0;
+        movementVector = Vector3.zero;
+        movementVector = Vector3.up * spikeForce;
+        GetComponent<SphereCollider>().enabled = false;
+        Camera.main.GetComponent<CameraController>().isDead = true;
+        // Should wait here for like a second
+        yield return new WaitForSeconds(1.5f);
+        SceneManager.LoadScene("HomeMenu");
+        Debug.Log("Game Over on Enter");
     }
 
     private void OnTriggerStay(Collider other)
     {
-        if (Time.time - lastDamageTime > damageTimer)
+        if(other.gameObject.tag == "LeftSpike" || other.gameObject.tag == "RightSpike")
         {
-            if(other.gameObject.tag == "LeftSpike" || other.gameObject.tag == "RightSpike")
+            if (Time.time - lastDamageTime > damageTimer)
             {
-                Debug.Log("Game Over on Stay");
-                sanicDead = true;
-                // Game Over here
+                lastDamageTime = Time.time;
+                int currentRings = GameManager.instance.rings;
                 if(isBall)
                 {
                     TurnToSanic();
                 }
-                currentSpeed = 0;
-                movementVector = Vector3.zero;
-                movementVector = Vector3.up * spikeForce;
-                GetComponent<SphereCollider>().enabled = false;
+                LeaveGround(0);
+                if(currentRings == 0)
+                {
+                    // Sanic Death Here :(
+                    StartCoroutine(DeathCoRoutine());
+                }
+                else
+                {
+                    currentSpeed = 0;
+                    movementVector = Vector3.zero;
+                    if (other.gameObject.tag == "LeftSpike" )
+                    {
+                        movementVector = new Vector3(-1, 1, 0) * spikeForce;
+                    }
+                    else
+                    {
+                        movementVector = new Vector3(1, 1, 0) * spikeForce;
+                    }
+                    int amtRingsToSpawn = Mathf.Min(currentRings, 5);
+                    for (int i = 0; i < amtRingsToSpawn; i++)
+                    {
+                        GameObject ringInstance = Instantiate(ringPrefab, transform.position, Quaternion.identity);
+                        ringInstance.GetComponent<Rigidbody>().AddForce(Random.insideUnitSphere * 20);
+                    }
+                    GameManager.instance.LoseAllRings();
+                    hud.Refresh();
+                }
             }
         }
     }
@@ -341,12 +380,14 @@ public class SonicController : MonoBehaviour
         }
     }
 
+    /*
     private void OnGUI()
     {
         GUI.Label(new Rect(10, 10, 100, 20), "tran.rot.eulerAngles.z" + transform.rotation.eulerAngles.z.ToString());
         GUI.Label(new Rect(10, 30, 100, 20), "rb.vel.x" + rb.velocity.x.ToString());
         GUI.Label(new Rect(10, 50, 100, 20), "currSpeed" + currentSpeed.ToString());
     }
+    */
 
     private void Slip()
     {
