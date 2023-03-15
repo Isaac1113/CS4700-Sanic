@@ -37,6 +37,7 @@ public class SonicController : MonoBehaviour
     [SerializeField] GameObject sanicGraphics;
     [SerializeField] GameObject ballGraphics;
     [SerializeField] Animator ballAnimator;
+    [SerializeField] GameObject ringPrefab;
 
     // Start is called before the first frame update
     void Start()
@@ -96,7 +97,7 @@ public class SonicController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject.tag == "Coin")
+        if(other.gameObject.tag == "Coin" && other.GetComponent<CoinController>().canPickup)
         {
             // Increase Score
             GameManager.instance.IncreaseScore(1);
@@ -105,7 +106,14 @@ public class SonicController : MonoBehaviour
             hud.Refresh();
 
             // Destroy the coin
-            Destroy(other.gameObject);
+            if(other.transform.parent != null)
+            {
+                Destroy(other.transform.parent.gameObject);
+            }
+            else
+            {
+                Destroy(other.gameObject);
+            }
         }
         else if(other.gameObject.tag == "LeftSpike" || other.gameObject.tag == "RightSpike")
         {
@@ -141,6 +149,12 @@ public class SonicController : MonoBehaviour
                     else
                     {
                         movementVector = new Vector3(1, 1, 0) * spikeForce;
+                    }
+                    int amtRingsToSpawn = Mathf.Min(currentRings, 5);
+                    for (int i = 0; i < amtRingsToSpawn; i++)
+                    {
+                        GameObject ringInstance = Instantiate(ringPrefab, transform.position, Quaternion.identity);
+                        ringInstance.GetComponent<Rigidbody>().AddForce(Random.insideUnitSphere * 20);
                     }
                     GameManager.instance.LoseAllRings();
                     hud.Refresh();
