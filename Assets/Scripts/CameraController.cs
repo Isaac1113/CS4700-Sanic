@@ -5,6 +5,7 @@ using UnityEngine;
 public class CameraController : MonoBehaviour
 {
     [SerializeField] private Transform player;
+    public bool isDead = false;
     private Vector3 cameraOffset;
     // Start is called before the first frame update
     void Start()
@@ -15,6 +16,9 @@ public class CameraController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.position = player.position + cameraOffset;
+        if (!isDead)
+        {
+            transform.position = player.position + cameraOffset;
+        }
     }
 }

@@ -30,6 +30,7 @@ public class SonicController : MonoBehaviour
     public float lastDamageTime = 0f;
     public float spikeForce = 10f;
     public float springForce = 20f;
+    public bool sanicDead = false;
     Vector3 movementVector = Vector3.zero;
     Rigidbody rb;
     SphereCollider col;
@@ -49,6 +50,10 @@ public class SonicController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (sanicDead)
+        {
+            return;
+        }
         if (Input.GetAxis("Vertical") < 0 && !isBall && Mathf.Abs(currentSpeed) >= 0.5f)
         {
             TurnToBall();
@@ -117,10 +122,12 @@ public class SonicController : MonoBehaviour
                 if(currentRings == 0)
                 {
                     // Game Over here
+                    sanicDead = true;
                     currentSpeed = 0;
                     movementVector = Vector3.zero;
                     movementVector = Vector3.up * spikeForce;
                     GetComponent<SphereCollider>().enabled = false;
+                    Camera.main.GetComponent<CameraController>().isDead = true;
                     Debug.Log("Game Over on Enter");
                 }
                 else
@@ -144,16 +151,16 @@ public class SonicController : MonoBehaviour
         {
             Debug.Log("hit spring");
             Debug.Log(other.gameObject.transform.TransformDirection(transform.up));
-            if(-other.gameObject.transform.TransformDirection(transform.up).y != 0 && !isGrounded)
+            if(!isGrounded)
             {
                 TurnToSanic();
-                movementVector.y = other.gameObject.transform.TransformDirection(transform.up).y * springForce;
+                movementVector.y = springForce;
             }
-            else
-            {
-                movementVector.x = other.gameObject.transform.TransformDirection(transform.up).x * springForce;
-                Debug.Log(movementVector);
-            }
+        }
+        else if (other.gameObject.tag == "HorizontalSpring")
+        {
+            float dir = other.gameObject.transform.TransformDirection(transform.up).x;
+            currentSpeed = dir * springForce;
         }
     }
 
@@ -164,6 +171,7 @@ public class SonicController : MonoBehaviour
             if(other.gameObject.tag == "LeftSpike" || other.gameObject.tag == "RightSpike")
             {
                 Debug.Log("Game Over on Stay");
+                sanicDead = true;
                 // Game Over here
                 if(isBall)
                 {
@@ -268,6 +276,7 @@ public class SonicController : MonoBehaviour
         }
         if (Mathf.Abs(currentSpeed) > 0f && Mathf.Abs(currentSpeed) < 0.5f && isBall && isGrounded)
         {
+            Debug.Log("turnSanic in setVel");
             TurnToSanic();
         }
         rb.velocity = movementVector;
@@ -334,6 +343,10 @@ public class SonicController : MonoBehaviour
 
     bool CheckGrounded()
     {
+        if(sanicDead)
+        {
+            return false;
+        }
         float sizeY = col.radius * 2;
         Vector3 feetPoint = transform.position + transform.up * (-sizeY/2 + 0.15f);
 
@@ -372,7 +385,7 @@ public class SonicController : MonoBehaviour
     {
         float hAxis = Input.GetAxis("Horizontal");
 
-        if (Time.time - lastLockTime < controlLockTimer)
+        if (sanicDead || Time.time - lastLockTime < controlLockTimer)
         {
             hAxis = 0;
         }

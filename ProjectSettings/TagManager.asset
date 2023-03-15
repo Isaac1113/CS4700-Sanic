@@ -10,6 +10,7 @@ TagManager:
   - RightSpike
   - Spike
   - UpSpring
+  - HorizontalSpring
   layers:
   - Default
   - TransparentFX
