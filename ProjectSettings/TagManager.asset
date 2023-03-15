@@ -8,6 +8,8 @@ TagManager:
   - Coin
   - LeftSpike
   - RightSpike
+  - Spike
+  - UpSpring
   layers:
   - Default
   - TransparentFX

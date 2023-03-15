@@ -29,6 +29,7 @@ public class SonicController : MonoBehaviour
     public float damageTimer = 1.5f;
     public float lastDamageTime = 0f;
     public float spikeForce = 10f;
+    public float springForce = 20f;
     Vector3 movementVector = Vector3.zero;
     Rigidbody rb;
     SphereCollider col;
@@ -108,12 +109,18 @@ public class SonicController : MonoBehaviour
                 lastDamageTime = Time.time;
                 int currentRings = GameManager.instance.rings;
                 Debug.Log(currentRings);
+                if(isBall)
+                {
+                    TurnToSanic();
+                }
                 LeaveGround(0);
                 if(currentRings == 0)
                 {
                     // Game Over here
                     currentSpeed = 0;
+                    movementVector = Vector3.zero;
                     movementVector = Vector3.up * spikeForce;
+                    GetComponent<SphereCollider>().enabled = false;
                     Debug.Log("Game Over on Enter");
                 }
                 else
@@ -133,15 +140,39 @@ public class SonicController : MonoBehaviour
                 }
             }
         }
+        else if (other.gameObject.tag == "UpSpring")
+        {
+            Debug.Log("hit spring");
+            Debug.Log(other.gameObject.transform.TransformDirection(transform.up));
+            if(-other.gameObject.transform.TransformDirection(transform.up).y != 0 && !isGrounded)
+            {
+                TurnToSanic();
+                movementVector.y = other.gameObject.transform.TransformDirection(transform.up).y * springForce;
+            }
+            else
+            {
+                movementVector.x = other.gameObject.transform.TransformDirection(transform.up).x * springForce;
+                Debug.Log(movementVector);
+            }
+        }
     }
 
     private void OnTriggerStay(Collider other)
     {
         if (Time.time - lastDamageTime > damageTimer)
         {
-            if(other.gameObject.tag == "Spike")
+            if(other.gameObject.tag == "LeftSpike" || other.gameObject.tag == "RightSpike")
             {
                 Debug.Log("Game Over on Stay");
+                // Game Over here
+                if(isBall)
+                {
+                    TurnToSanic();
+                }
+                currentSpeed = 0;
+                movementVector = Vector3.zero;
+                movementVector = Vector3.up * spikeForce;
+                GetComponent<SphereCollider>().enabled = false;
             }
         }
     }
@@ -182,7 +213,6 @@ public class SonicController : MonoBehaviour
         transform.rotation = Quaternion.identity;
         currentSpeed = 0;
         ballAnimator.SetBool("IsGrounded", false);
-        // Debug.Log(movementVector);
     }
     
     public void TouchGround()
@@ -197,7 +227,7 @@ public class SonicController : MonoBehaviour
         ballAnimator.SetBool("IsGrounded", true);
     }
 
-    private void setVelocity() 
+    private void setVelocity()
     {
         if(isGrounded)
         {
@@ -245,8 +275,11 @@ public class SonicController : MonoBehaviour
 
     private void TurnToBall()
     {
-        frictionSpeed = frictionSpeed / 2;
-        topSpeed = topSpeed * 2;
+        if (isSanic)
+        {
+            frictionSpeed = frictionSpeed / 2;
+            topSpeed = topSpeed * 2;
+        }
         isBall = true;
         isSanic = false;
         sanicGraphics.GetComponent<MeshRenderer>().enabled = false;
@@ -255,8 +288,11 @@ public class SonicController : MonoBehaviour
 
     private void TurnToSanic()
     {
-        frictionSpeed = frictionSpeed * 2;
-        topSpeed = topSpeed / 2;
+        if (isBall)
+        {
+            frictionSpeed = frictionSpeed * 2;
+            topSpeed = topSpeed / 2;
+        }
         isBall = false;
         isSanic = true;
         sanicGraphics.GetComponent<MeshRenderer>().enabled = true;
